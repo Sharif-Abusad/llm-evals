@@ -34,7 +34,7 @@ load_dotenv()
 
 GOLDEN_PATH = "goldens/faithfulness_dataset.json"
 JUDGE_MODEL = GroqModel(
-    model="openai/gpt-oss-120b",
+    model="openai/gpt-oss-20b",
     temperature=0,
 )
 THRESHOLD = 0.7
@@ -43,7 +43,7 @@ THRESHOLD = 0.7
 # 1. LOAD the faithfulness golden set (query + ideal_context)
 with open(GOLDEN_PATH) as f:
     goldens = json.load(f)
-goldens = goldens[:1]
+goldens = goldens[:3]
 
 # 2. RUN GENERATOR on the GOLDEN context (isolation), build one test case each
 test_cases = []
@@ -67,14 +67,23 @@ metrics = [
     FaithfulnessMetric(
         threshold=THRESHOLD,
         model=JUDGE_MODEL,
-        include_reason=True     # prints WHY each score - show which claims were unsupported
+        include_reason=False,     # prints WHY each score - show which claims were unsupported
+        async_mode=False
     ),
     AnswerRelevancyMetric(
         threshold=THRESHOLD,
         model=JUDGE_MODEL,
-        include_reason=True
+        include_reason=False,
+        async_mode=False
     )
 ]
 
+from deepeval.evaluate.configs import AsyncConfig
 # 4. EVALUATE - runs the metric on every test_case, prints a report
-evaluate(test_cases=test_cases, metrics=metrics)
+evaluate(
+    test_cases=test_cases, 
+    metrics=metrics, 
+    async_config=AsyncConfig(
+        run_async=False
+    )
+)
