@@ -37,9 +37,16 @@ prompt = ChatPromptTemplate.from_template(
     Answer the student's question using ONLY the information in the context provided below.
 
     Rules:
-    - Use only information present in the context. Do not add outside knowledge.
-    - If the context does not contain enough information to answer, say:
+    - Use ONLY information present in the context. Do not add outside knowledge.
+    - Do not strengthen or overstate claims. If the context say two things are 
+        "different" do not upgrade that to "separate methods" or stronger wording.
+    - The context is an informal lecture transcript. Synthesize and rephrase what
+        IS there - do not require the question's exact wording to appear.
+    - ONLY abstain if the context contains NOTHING relevant to the question. If it contains partial information, answer with what is present.
+    - If you must abstain, say exactly:
       "I don't have enough information in the course material to answer that."
+    - Answer the question DIRECTLY in the first sentence. Keep supporting detail
+        tight - include at most one or two examples, and only if they serve the question being asked.
     - Keep the answer clear and concise.
 
     Context:
