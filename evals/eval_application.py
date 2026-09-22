@@ -49,23 +49,24 @@ for g in goldens:
 
 # 3. THE CORRECTNESS METRIC (graded G-Eval - partial credit, not pass/fail)
 correctness = GEval(
-    name="Correctness",
-    evaluation_steps=[
-        "Compare the actual output against the key facts in the corrected output.",
-        "Heavily penalize statements in the actual output that contradict the expected output or are factually wrong.",
-        "Reward statements that match the expected output in meaning, regardless of wording.",
-        "Do NOT penalize the actual output for omitting information - only wrong statements count here."
-    ],
-    evaluation_params=[
-        LLMTestCaseParams.INPUT,
-        LLMTestCaseParams.ACTUAL_OUTPUT,
-        LLMTestCaseParams.EXPECTED_OUTPUT
-    ],
-    threshold=THRESHOLD,
-    model=JUDGE_MODEL,
-    strict_mode=False          # graded_scale: strict_mode=True would collapse it to 0/1
-)
-
+        name="Correctness",
+        evaluation_steps=[
+            "Compare only the factual claims in the actual output against the expected output.",
+            "A claim is wrong only if it CONTRADICTS the expected output or is factually false. Judge truth, not completeness.",
+            "A factually accurate answer must score at least 0.9 even if it is shorter or covers fewer points than the expected output.",
+            "Do NOT deduct for brevity, missing elaboration, or omitted points --- omissions are not errors here.",
+            "Additional correct information must NEVER lower the score.",
+        ],
+        rubric=[
+            Rubric(score_range=(9, 10), expected_outcome="All stated claims are factually correct and consistent. No contradictions. Brevity is fine."),
+            Rubric(score_range=(5, 8),  expected_outcome="Mostly correct but one minor inaccuracy."),
+            Rubric(score_range=(0, 4),  expected_outcome="Contains a clear factual error or a claim that contradicts the expected output."),
+        ],
+        evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.EXPECTED_OUTPUT],
+        threshold=THRESHOLD,
+        model=JUDGE_MODEL,
+        strict_mode=False,
+    )
 
 # EVALUATE
 evaluate(test_cases=test_cases, metrics=[correctness])
