@@ -19,4 +19,6 @@ dependencies = [
     "sentence-transformers>=6.0.1",
     "langchain-huggingface>=1.2.2",
     "portalocker[win32]>=4.3.2",
+    "streamlit>=1.64.0",
+    "torchvision>=0.29.0",
 ]
